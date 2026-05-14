@@ -5,8 +5,7 @@ import urllib.parse
 st.set_page_config(page_title="Magic Decoder", page_icon="🔓")
 st.title("🔓 초간단 복호화/디코딩 툴")
 
-# 1. URL 파라미터를 통해 데이터 가져오기 (편의 기능)
-# 예: yoursite.com/?data=SGVsbG8=
+# 1. URL 파라미터를 통해 데이터 가져오기
 query_params = st.query_params
 initial_data = query_params.get("data", "")
 
@@ -33,13 +32,26 @@ with col2:
         except Exception as e:
             st.error("디코딩 중 오류가 발생했습니다.")
 
-# 3. 링크 생성 기능 (복호화로 바로 연결되는 링크)
+# 3. 링크 생성 기능 (원본 데이터를 Base64로 암호화하여 공유)
 st.divider()
-st.subheader("🔗 공유용 링크 만들기")
-share_data = st.text_input("공유할 원본 데이터 입력:")
+st.subheader("🔗 안전한 공유용 링크 만들기 (인코딩)")
+share_data = st.text_input("숨기고 싶은 원본 데이터(예: 메가 링크) 입력:")
+
 if share_data:
-    # 실제 배포 시 사이트 주소로 변경 필요
+    # 1단계: 입력받은 데이터를 Base64로 인코딩(문자 섞기)
+    encoded_bytes = base64.b64encode(share_data.encode('utf-8'))
+    encoded_string = encoded_bytes.decode('utf-8')
+    
+    # 실제 배포 시 본인의 스트림릿 사이트 주소로 변경
     base_url = "https://your-app.streamlit.app/" 
-    encoded_link = f"{base_url}?data={share_data}"
-    st.write("아래 링크를 공유하면 접속 즉시 입력창에 데이터가 들어갑니다:")
+    
+    # 2단계: 암호화된 데이터를 URL에 포함 (URL 형식에 맞게 한 번 더 안전하게 파싱)
+    encoded_link = f"{base_url}?data={urllib.parse.quote(encoded_string)}"
+    
+    st.write("🔒 Base64로 변환된 텍스트 (이 글자만 복사해서 공유해도 됩니다):")
+    st.code(encoded_string)
+    
+    st.write("🌐 접속 즉시 암호화된 텍스트가 입력되는 링크:")
     st.code(encoded_link)
+    
+    st.info("💡 **작동 방식:** 남들이 이 링크를 클릭하면 알 수 없는 영어/숫자 조합이 입력창에 뜹니다. 그 후 **[Base64 디코딩]** 버튼을 눌러야만 비로소 원본 메가 링크를 확인할 수 있습니다.")
