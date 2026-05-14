@@ -10,8 +10,21 @@ query_params = st.query_params
 initial_data = query_params.get("data", "")
 
 # 2. 메인 해독(디코딩) 영역
-st.subheader("🔓 데이터 해독하기 (디코딩)")
-input_text = st.text_area("암호화된 텍스트를 입력하세요 예)aHR~~~ :", value=initial_data, height=150)
+# 화면을 4:1 비율로 나누어 텍스트 입력창과 아이콘 배치
+col_dec_text, col_dec_img = st.columns([4, 1])
+
+with col_dec_text:
+    st.subheader("🔓 데이터 해독하기 (디코딩)")
+    input_text = st.text_area("암호화된 텍스트를 입력하세요 예)aHR~~~ :", value=initial_data, height=150)
+
+with col_dec_img:
+    # 빈 공간을 살짝 띄워서 위치를 맞춤
+    st.write("")
+    st.write("")
+    st.write("")
+    st.write("") 
+    st.write("")
+    st.image("icon_5.gif", use_container_width=True)
 
 col1, col2 = st.columns(2)
 
@@ -50,7 +63,12 @@ if share_data:
     encoded_bytes = base64.b64encode(share_data.encode('utf-8'))
     encoded_string = encoded_bytes.decode('utf-8')
     
-    st.success("암호화 완료! 아래 텍스트를 복사해서 공유하세요.")
-    st.code(encoded_string)
+    # 성공했을 때만 화면을 나누어 아이콘 표시
+    col_enc_text, col_enc_img = st.columns([4, 1])
     
-    st.info(f"💡 **빠른 공유 팁:** 현재 접속 중인 사이트 주소 끝에 `?data={urllib.parse.quote(encoded_string)}` 를 붙여서 링크로 전달하면 접속 즉시 해독창에 입력됩니다.")
+    with col_enc_text:
+        st.success("암호화 완료! 아래 텍스트를 복사해서 공유하세요.")
+        st.code(encoded_string)
+        
+    with col_enc_img:
+        st.image("icon_15.gif", use_container_width=True)
