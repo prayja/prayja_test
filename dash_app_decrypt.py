@@ -3,55 +3,54 @@ import base64
 import urllib.parse
 
 st.set_page_config(page_title="Magic Decoder", page_icon="🔓")
-st.title("🔓 초간단 복호화/디코딩 툴")
+st.title("🔓 초간단 암/복호화 툴")
 
-# 1. URL 파라미터를 통해 데이터 가져오기
+# 1. URL 파라미터 확인 (링크로 접속한 경우 자동 입력)
 query_params = st.query_params
 initial_data = query_params.get("data", "")
 
-# 2. 입력 UI
-input_text = st.text_area("디코딩할 내용을 입력하세요:", value=initial_data, height=150)
+# 2. 메인 해독(디코딩) 영역
+st.subheader("🔓 데이터 해독하기 (디코딩)")
+input_text = st.text_area("암호화된 텍스트를 입력하세요 예)aHR~~~ :", value=initial_data, height=150)
 
 col1, col2 = st.columns(2)
 
 with col1:
-    if st.button("Base64 디코딩", use_container_width=True):
-        try:
-            decoded = base64.b64decode(input_text).decode('utf-8')
-            st.success("Base64 결과:")
-            st.code(decoded)
-        except Exception as e:
-            st.error("Base64 형식이 아닙니다.")
+    if st.button("Base64 해독", use_container_width=True):
+        if input_text:
+            try:
+                decoded = base64.b64decode(input_text).decode('utf-8')
+                st.success("해독 성공!")
+                st.code(decoded)
+            except Exception:
+                st.error("유효한 Base64 형식이 아닙니다.")
+        else:
+            st.warning("텍스트를 먼저 입력해 주세요.")
 
 with col2:
-    if st.button("URL 디코딩", use_container_width=True):
-        try:
-            decoded = urllib.parse.unquote(input_text)
-            st.success("URL 디코딩 결과:")
-            st.code(decoded)
-        except Exception as e:
-            st.error("디코딩 중 오류가 발생했습니다.")
+    if st.button("URL 해독", use_container_width=True):
+        if input_text:
+            try:
+                decoded = urllib.parse.unquote(input_text)
+                st.success("해독 성공!")
+                st.code(decoded)
+            except Exception:
+                st.error("해독 중 오류가 발생했습니다.")
+        else:
+            st.warning("텍스트를 먼저 입력해 주세요.")
 
-# 3. 링크 생성 기능 (원본 데이터를 Base64로 암호화하여 공유)
 st.divider()
-st.subheader("🔗 안전한 공유용 링크 만들기 (인코딩)")
-share_data = st.text_input("숨기고 싶은 원본 데이터(예: 메가 링크) 입력:")
+
+# 3. 암호화(인코딩) 영역 - 공유용 데이터 생성
+st.subheader("🔒 나만의 비밀 데이터 만들기 (인코딩)")
+share_data = st.text_input("숨기고 싶은 원본 데이터(예: 공유 링크, 비밀 메모)를 입력하세요:")
 
 if share_data:
-    # 1단계: 입력받은 데이터를 Base64로 인코딩(문자 섞기)
+    # Base64로 텍스트 변환
     encoded_bytes = base64.b64encode(share_data.encode('utf-8'))
     encoded_string = encoded_bytes.decode('utf-8')
     
-    # 실제 배포 시 본인의 스트림릿 사이트 주소로 변경
-    base_url = "https://your-app.streamlit.app/" 
-    
-    # 2단계: 암호화된 데이터를 URL에 포함 (URL 형식에 맞게 한 번 더 안전하게 파싱)
-    encoded_link = f"{base_url}?data={urllib.parse.quote(encoded_string)}"
-    
-    st.write("🔒 Base64로 변환된 텍스트 (이 글자만 복사해서 공유해도 됩니다):")
+    st.success("암호화 완료! 아래 텍스트를 복사해서 공유하세요.")
     st.code(encoded_string)
     
-    st.write("🌐 접속 즉시 암호화된 텍스트가 입력되는 링크:")
-    st.code(encoded_link)
-    
-    st.info("💡 **작동 방식:** 남들이 이 링크를 클릭하면 알 수 없는 영어/숫자 조합이 입력창에 뜹니다. 그 후 **[Base64 디코딩]** 버튼을 눌러야만 비로소 원본 메가 링크를 확인할 수 있습니다.")
+    st.info(f"💡 **빠른 공유 팁:** 현재 접속 중인 사이트 주소 끝에 `?data={urllib.parse.quote(encoded_string)}` 를 붙여서 링크로 전달하면 접속 즉시 해독창에 입력됩니다.")
